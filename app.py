@@ -2,9 +2,10 @@ import streamlit as st
 import tensorflow as tf
 from PIL import Image
 import numpy as np
+import pickle
 
-# Load Model
-model = tf.keras.models.load_model("Face_mask_detection.h5")
+with open("Face_mask_detection.pkl", "rb") as f:
+    model = pickle.load(f)
 
 class_names = ['No Mask', 'Mask']
 
@@ -16,7 +17,6 @@ def preprocess_image(image):
     img_array = img_array.reshape((1, 128, 128, 3))
     return img_array
 
-# ------------------- CUSTOM STYLING ---------------------
 st.markdown("""
 <style>
 
@@ -69,16 +69,12 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------------------------------------
-
 st.markdown("<div class='title'>Face Mask Detection System 😷</div>", unsafe_allow_html=True)
-
 st.markdown("<div class='upload-box'>", unsafe_allow_html=True)
 
 uploaded_image = st.file_uploader("Upload an image of a person", type=["jpg", "jpeg", "png"])
 
 if uploaded_image is not None:
-
     image = Image.open(uploaded_image)
     col1, col2 = st.columns(2)
 
@@ -88,16 +84,13 @@ if uploaded_image is not None:
     with col2:
         if st.button("🔍 Classify", use_container_width=True):
             img_array = preprocess_image(uploaded_image)
-
             result = model.predict(img_array)
             predicted_class = np.argmax(result)
-            prediction = class_names[predicted_class]
 
-            if prediction == "Mask":
+            if predicted_class == 1:
                 st.markdown("<div class='pred-result mask'>😷 Wearing a Mask</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='pred-result nomask'>❌ Not Wearing a Mask</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
-
 st.markdown("<div class='footer'>Developed using TensorFlow & Streamlit</div>", unsafe_allow_html=True)
