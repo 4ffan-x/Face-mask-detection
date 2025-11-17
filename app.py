@@ -3,9 +3,10 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 import pickle
+from tensorflow.keras.models import load_model
 
-with open("Face_mask_detection.pkl", "rb") as f:
-    model = pickle.load(f)
+model = load_model("Face_mask_model.keras")
+
 
 class_names = ['No Mask', 'Mask']
 
